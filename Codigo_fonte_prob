@@ -1,1 +1,88 @@
 
+float Prob_um_numero() {
+  int valor = 1;
+  int total = 24;
+  float resultado;
+
+  resultado = (float)valor / total;
+
+  return resultado;
+}
+
+void Prob_cor(float* comuns, float* raros) {
+  int cores_comuns = 11, verde = 2, total = 24;
+
+  // Calculando probabilidades
+  *comuns = (float)cores_comuns / total;
+  *raros = (float)verde / total;
+}
+
+
+struct Probabilidades {
+  float hot[5];   // array para os 5 valores "quentes"
+  float cold[5];  // array para os 5 valores "frio"
+};
+struct Probabilidades Prob_hot_cold(float* hot, float* cold, int* aparicoes) {
+  struct Probabilidades resultados;
+
+  //Queremos primeiramente a freq real que será o número de vezes que o mesmo apareceu
+  int Freq_real = aparicoes
+
+    //Freq esperado para um X de jogadas que será nas ultimas 15 rodadas pelos 24 numeros
+  int totalRodadas = 50;
+  int totalNumeros = 24;
+  float Freq_esp = (float)totalRodadas / totalNumeros;
+
+for (int i = 0; i < 5; i++) {
+        // frequência real (passada pelo array aparicoes)
+        int Freq_real = aparicoes[i];
+
+        // Calculando o desvio
+        float desv = (float)Freq_real - Freq_esp;
+
+        // Classificando como "hot" ou "cold"
+        if (desv > 0) {
+            resultados.hot[i] = desv; // Desvios positivos (quentes)
+            resultados.cold[i] = 0;  // Não é frio
+        } else {
+            resultados.hot[i] = 0;   // Não é quente
+            resultados.cold[i] = -desv; // Desvios negativos (frios)
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+  serial.begin(9600);
+
+  //Para um único numero
+  Serial.println(Prob_um_numero(), 2);
+
+  //Para as Probabilidades das cores
+  float resultado_comuns, resultado_raros;
+  Prob_cor(resultado_comuns, resultado_raros);
+  Serial.println(resultado_comuns, 2);
+  Serial.println(resultado_raros, 2);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+}
+
