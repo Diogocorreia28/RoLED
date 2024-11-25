@@ -19,47 +19,69 @@ void Prob_cor(float* comuns, float* raros) {
 
 
 struct Probabilidades {
-  float hot[5];   // array para os 5 valores "quentes"
-  float cold[5];  // array para os 5 valores "frio"
+  float hot[5];   //array para os 5 valores "quentes"
+  float cold[5];  //array para os 5 valores "frio"
 };
-struct Probabilidades Prob_hot_cold(float* hot, float* cold, int* aparicoes) {
-  struct Probabilidades resultados;
+Probabilidades Prob_hot_cold(int* aparicoes, int totalNumeros) {
+  Probabilidades resultados;
 
-  //Queremos primeiramente a freq real que será o número de vezes que o mesmo apareceu
-  int Freq_real = aparicoes
+  for (int i = 0; i < 5; i++) {
+    resultados.hot[i] = -1;  //inicializa vazio
+    resultados.cold[i] = -1;
+  }
 
-    //Freq esperado para um X de jogadas que será nas ultimas 15 rodadas pelos 24 numeros
-  int totalRodadas = 50;
-  int totalNumeros = 24;
-  float Freq_esp = (float)totalRodadas / totalNumeros;
+  //criar cópias de aparições para ordenação
+  int aparicoesHot[totalNumeros];
+  int aparicoesCold[totalNumeros];
+  for (int i = 0; i < totalNumeros; i++) {
+    aparicoesHot[i] = aparicoes[i];
+    aparicoesCold[i] = aparicoes[i];
+  }
 
-for (int i = 0; i < 5; i++) {
-        // frequência real (passada pelo array aparicoes)
-        int Freq_real = aparicoes[i];
+  //encontrar os 5 números mais frequentes
+  for (int i = 0; i < 5; i++) {
+    int maxFreq = -1;
+    int hotIndex = -1;
 
-        // Calculando o desvio
-        float desv = (float)Freq_real - Freq_esp;
-
-        // Classificando como "hot" ou "cold"
-        if (desv > 0) {
-            resultados.hot[i] = desv; // Desvios positivos (quentes)
-            resultados.cold[i] = 0;  // Não é frio
-        } else {
-            resultados.hot[i] = 0;   // Não é quente
-            resultados.cold[i] = -desv; // Desvios negativos (frios)
-        }
+    for (int j = 0; j < totalNumeros; j++) {
+      if (aparicoesHot[j] > maxFreq) {
+        maxFreq = aparicoesHot[j];
+        hotIndex = j;
+      }
     }
 
+    resultados.hot[i] = hotIndex + 1;  // Número correspondente (índice + 1)
+    aparicoesHot[hotIndex] = -1;       // Marcar como processado
+  }
+
+  // Encontrar os 5 números menos frequentes (cold)
+  for (int i = 0; i < 5; i++) {
+    int minFreq = 9999;
+    int coldIndex = -1;
+
+    for (int j = 0; j < totalNumeros; j++) {
+      if (aparicoesCold[j] < minFreq && aparicoesCold[j] >= 0) {
+        minFreq = aparicoesCold[j];
+        coldIndex = j;
+      }
+    }
+
+    resultados.cold[i] = coldIndex + 1;  // Número correspondente (índice + 1)
+    aparicoesCold[coldIndex] = 9999;     // Marcar como processado
+  }
+
+  return resultados;
 }
 
+float Prob_Par_Impar() {
+  //como o número de impares é igual ao numero de pares
+  int Num_Par_imp = 11, Total = 24;
+  int resultado;
 
+  resultado = (float)Num_Par_imp / Total;
 
-
-
-
-
-
-
+  return resultado;
+}
 
 
 
@@ -85,4 +107,3 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 }
-
