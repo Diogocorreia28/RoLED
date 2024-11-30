@@ -1,5 +1,3 @@
-
-
 #include <FastLED.h>
 
 #define LED_PIN     7
@@ -10,22 +8,24 @@
 CRGB leds[NUM_LEDS];
 
 
-
 void setup() {
-    delay(3000); // Atraso de segurança ao ligar
-    FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-    FastLED.setBrightness(BRIGHTNESS);
-    
-    // Define todos os LEDs como brancos
-    fill_solid(leds, NUM_LEDS, CRGB::White);
+  delay(3000);
+ 
+  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(BRIGHTNESS);
 
-    // Mostra os LEDs configurados
-    FastLED.show();// comando fundamental para mostrar a atualizaçao final
-    
+  for(int i = 0; i < NUM_LEDS; i++){
+    if(i == 0 || i == NUM_LEDS / 2){ // posicoes 0 e 12
+      leds[i] = CRGB::Green;
+    }else if(i % 2 == 0){ // posicoes pares
+      leds[i] = CRGB::Red;
+    }else{
+      leds[i] = CRGB::Black; // todas as outras sem ser a posicao 0, 12 e as pares 
+    } 
+  }
 }
 
+void loop() {
+  // put your main code here, to run repeatedly:
 
-void loop()
-{}
-
-
+}
