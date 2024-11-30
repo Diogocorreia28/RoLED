@@ -1,1 +1,31 @@
 
+
+#include <FastLED.h>
+
+#define LED_PIN     7
+#define NUM_LEDS    24
+#define BRIGHTNESS  64
+#define LED_TYPE    WS2811
+#define COLOR_ORDER GRB
+CRGB leds[NUM_LEDS];
+
+
+
+void setup() {
+    delay(3000); // Atraso de segurança ao ligar
+    FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+    FastLED.setBrightness(BRIGHTNESS);
+    
+    // Define todos os LEDs como brancos
+    fill_solid(leds, NUM_LEDS, CRGB::White);
+
+    // Mostra os LEDs configurados
+    FastLED.show();// comando fundamental para mostrar a atualizaçao final
+    
+}
+
+
+void loop()
+{}
+
+
