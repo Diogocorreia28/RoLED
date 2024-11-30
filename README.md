@@ -3,7 +3,7 @@ Author name:
 Diogo Lopes Correia
 João António Dinis Lucas
 
-Version number:
+Version number:0.0.1
 
 Description of overall functionality: 
 O objetivo deste código é fazer a simulação de uma roleta através de um neo-pixel, o código é feito em C.
