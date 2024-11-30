@@ -17,61 +17,55 @@ void Prob_cor(float* comuns, float* raros) {
   *raros = (float)verde / total;
 }
 
-
+/* Para usar com ficheiros
+#include <SPI.h>
+#include <SD.h>
+*/
 struct Probabilidades {
-  float hot[5];   //array para os 5 valores "quentes"
-  float cold[5];  //array para os 5 valores "frio"
+  int hot[5];
+  int cold[5];
 };
-Probabilidades Prob_hot_cold(int* aparicoes, int totalNumeros) {
+
+
+Probabilidades calcularProbabilidades(const int* aparicoes, int size) {
+  int frequencias[24] = {0}; 
+
+ 
+  for (int i = 0; i < size; i++) {
+    if (aparicoes[i] >= 0 && aparicoes[i] <= 24) {
+      frequencias[aparicoes[i]]++;
+    }
+  }
+
   Probabilidades resultados;
 
-  for (int i = 0; i < 5; i++) {
-    resultados.hot[i] = -1;  //inicializa vazio
-    resultados.cold[i] = -1;
-  }
-
-  //criar cópias de aparições para ordenação
-  int aparicoesHot[totalNumeros];
-  int aparicoesCold[totalNumeros];
-  for (int i = 0; i < totalNumeros; i++) {
-    aparicoesHot[i] = aparicoes[i];
-    aparicoesCold[i] = aparicoes[i];
-  }
-
-  //encontrar os 5 números mais frequentes
-  for (int i = 0; i < 5; i++) {
-    int maxFreq = -1;
-    int hotIndex = -1;
-
-    for (int j = 0; j < totalNumeros; j++) {
-      if (aparicoesHot[j] > maxFreq) {
-        maxFreq = aparicoesHot[j];
-        hotIndex = j;
+  for (int k = 0; k < 5; k++) {
+    
+    int maxFreq = -1, maxNum = -1;
+    for (int i = 0; i < 24; i++) {
+      if (frequencias[i] > maxFreq) {
+        maxFreq = frequencias[i];
+        maxNum = i;
       }
     }
+    resultados.hot[k] = maxNum;
+    frequencias[maxNum] = -1; // Marcar como usado
 
-    resultados.hot[i] = hotIndex + 1;  // Número correspondente (índice + 1)
-    aparicoesHot[hotIndex] = -1;       // Marcar como processado
-  }
-
-  // Encontrar os 5 números menos frequentes (cold)
-  for (int i = 0; i < 5; i++) {
-    int minFreq = 9999;
-    int coldIndex = -1;
-
-    for (int j = 0; j < totalNumeros; j++) {
-      if (aparicoesCold[j] < minFreq && aparicoesCold[j] >= 0) {
-        minFreq = aparicoesCold[j];
-        coldIndex = j;
+    // Encontrar o número menos frequente
+    int minFreq = size + 1, minNum = -1;
+    for (int i = 0; i < 24; i++) {
+      if (frequencias[i] >= 0 && frequencias[i] < minFreq) {
+        minFreq = frequencias[i];
+        minNum = i;
       }
     }
-
-    resultados.cold[i] = coldIndex + 1;  // Número correspondente (índice + 1)
-    aparicoesCold[coldIndex] = 9999;     // Marcar como processado
+    resultados.cold[k] = minNum;
+    frequencias[minNum] = -1; // Marcar como usado
   }
 
   return resultados;
 }
+
 
 float Prob_Par_Impar() {
   //como o número de impares é igual ao numero de pares
@@ -84,25 +78,56 @@ float Prob_Par_Impar() {
 }
 
 
-
-
-
-
-
-
 void setup() {
-  // put your setup code here, to run once:
-  serial.begin(9600);
+  Serial.begin(9600);
+/* para usar com ficheiros
+  // Inicializar o módulo SD
+  if (!SD.begin(10)) {
+    Serial.println("Falha ao inicializar o cartão SD!");
+    return;
+  }
+  
+  File file = SD.open("jogadas.txt", FILE_READ);
+  if (!file) {
+    Serial.println("Não foi possível abrir o arquivo jogadas.txt");
+    return;
+  }
 
-  //Para um único numero
-  Serial.println(Prob_um_numero(), 2);
+  // Ler os números do arquivo (últimas 50 jogadas)
+  int aparicoes[50];
+  int count = 0;
 
-  //Para as Probabilidades das cores
-  float resultado_comuns, resultado_raros;
-  Prob_cor(resultado_comuns, resultado_raros);
-  Serial.println(resultado_comuns, 2);
-  Serial.println(resultado_raros, 2);
+  while (file.available() && count < 50) {
+    aparicoes[count] = file.parseInt(); // Lê um número inteiro do arquivo
+    count++;
+  }
+  file.close();
+*/
+  // Garantir que temos 50 jogadas
+  if (count < 50) {
+    Serial.println("O arquivo não contém 50 jogadas.");
+    return;
+  }
+
+  // Calcular os números mais e menos frequentes
+  Probabilidades resultados = calcularProbabilidades(aparicoes, 50);
+
+  // Mostrar os resultados
+  Serial.println("Os cinco números que mais apareceram nas últimas 50 jogadas foram:");
+  for (int i = 0; i < 5; i++) {
+    Serial.print(resultados.hot[i]);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  Serial.println("Os cinco números que menos apareceram nas últimas 50 jogadas foram:");
+  for (int i = 0; i < 5; i++) {
+    Serial.print(resultados.cold[i]);
+    Serial.print(" ");
+  }
+  Serial.println();
 }
+
 
 void loop() {
   // put your main code here, to run repeatedly:
