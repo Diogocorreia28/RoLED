@@ -7,25 +7,28 @@
 #define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
 
-
 void setup() {
-  delay(3000);
- 
+  delay(3000); // Atraso de segurança
+  
+  // Inicializa a faixa de LEDs
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
 
-  for(int i = 0; i < NUM_LEDS; i++){
-    if(i == 0 || i == NUM_LEDS / 2){ // posicoes 0 e 12
-      leds[i] = CRGB::Green;
-    }else if(i % 2 == 0){ // posicoes pares
-      leds[i] = CRGB::Red;
-    }else{
-      leds[i] = CRGB::Black; // todas as outras sem ser a posicao 0, 12 e as pares 
-    } 
+  // Configura as cores para cada LED
+  for (int i = 0; i < NUM_LEDS; i++) {
+    if (i == 0 || i == NUM_LEDS / 2) { // LEDs nas posições 0 e 12 (metade de 24)
+      leds[i] = CRGB::Green;           // Verde
+    } else if (i % 2 == 0) {           // LEDs nas posições pares
+      leds[i] = CRGB::Red;             // Vermelho
+    } else {
+      leds[i] = CRGB::Blue;           // Apagado (preto)
+    }
   }
+
+  // Mostra os LEDs configurados
+  FastLED.show(); 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  // O loop está vazio porque as configurações já são feitas no setup
 }
