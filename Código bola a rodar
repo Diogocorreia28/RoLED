@@ -26,7 +26,7 @@ void efeitoInativo1(int posicao_bola) {
   }
 }
 
-void efeitoInativo2(int cor, int posicao_bola){
+void efeitoInativo2(int cor, int posicao_bola){ //Trata-se de quando a bola para no valor correspondente que tem uma cor, o neo pixel pisca todo nessa cor, para melhor perseção do utilizador
 CRGB corEscolhida;
 
   switch (cor) {
@@ -66,18 +66,13 @@ CRGB corEscolhida;
    
 
 
-
-
-
-
-
 void setup() {
-  delay(1000);  // Atraso de segurança ao ligar
+  delay(1000);  // tempo que demora a a iniciar o novo codigo
 
-  // Inicializa a tira de LEDs
+  // inicializa o neopixel
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
-  randomSeed(analogRead(A0));
+  randomSeed(analogRead(A0));// plantar a semente do random
 }
 
 void loop() {
@@ -86,15 +81,15 @@ void loop() {
 
   // for para controlar a bola a rolar
   for (int i = 0; i < NUM_LEDS * 4; i++) {  //o valor númerico controla as voltas que queremos
-    // Apaga todos os LEDs
+    // apaga todos os LEDs
     fill_solid(leds, NUM_LEDS, CRGB::Red);  // cor base da roleta (vermelha)
 
     // define as cores da roleta
     for (int j = 0; j < NUM_LEDS; j++) {
       if (j % 2 == 0) {
-        leds[j] = CRGB::Blue;  // Preto para LEDs pares
+        leds[j] = CRGB::Blue;  // azul para LEDs pares
       } else {
-        leds[j] = CRGB::Red;  // Vermelho para LEDs ímpares
+        leds[j] = CRGB::Red;  // vermelho para LEDs ímpares
       }
     }
 
@@ -134,18 +129,15 @@ void loop() {
   //logo roleta inativa
 
 
-  
-  
+  //para o efeito inativo 1
+ 
+posicao_ini_bola = posicao_ini_bola - 1;  //devido a uma condição no for para controlar efeitoInativo1
 
-
-  
- // posicao_ini_bola = posicao_ini_bola - 1;  //devido a uma condição no for para controlar efeitoInativo1
-/*
 
   efeitoInativo1(posicao_ini_bola);
-*/
+
   
-    //Para o efeito inativo 2
+ /*   //Para o efeito inativo 2
  int def_cor;
 int cor;
 def_cor = posicao_ini_bola;
@@ -163,6 +155,14 @@ else {
   cor = 2;
   efeitoInativo2(cor, posicao_ini_bola); // azul
 }
-
+*/
   
 }
+
+
+
+
+
+
+
+
