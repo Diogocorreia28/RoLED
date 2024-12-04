@@ -5,6 +5,9 @@
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
+const int JOGADAS_MAX = 5; // Número máximo de jogadas
+const int EEPROM_SIZE = JOGADAS_MAX + 1; // 1 byte para o índice + jogadas
+
 #define LED_PIN 7
 #define NUM_LEDS 24
 #define BRIGHTNESS 12
@@ -66,6 +69,70 @@ void efeitoInativo2(int cor, int posicao_bola) {  //Trata-se de quando a bola pa
 
     FastLED.show();
     delay(300);  // Tempo que os LEDs ficam apagados
+  }
+}
+
+void salvarJogadaEEPROM(int posicao) {
+  // Lê o índice atual da EEPROM (posição 0)
+  int indiceAtual = EEPROM.read(0);
+
+  // Se o índice for inválido, inicializa
+  if (indiceAtual < 1 || indiceAtual > JOGADAS_MAX) {
+    indiceAtual = 1;
+  }
+
+  // Salva a posição da jogada no índice atual
+  EEPROM.write(indiceAtual, posicao);
+
+  // Incrementa o índice e volta para 1 se ultrapassar o máximo
+  indiceAtual = (indiceAtual % JOGADAS_MAX) + 1;
+
+  // Salva o novo índice na posição 0
+  EEPROM.write(0, indiceAtual);
+}
+
+void mostrarJogadasLCD() {
+  // Lê o índice atual da EEPROM
+  int indiceAtual = EEPROM.read(0);
+
+  // Limpa o LCD e exibe o título
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Ultimas Jogadas:");
+
+  // Exibe as últimas 15 jogadas
+  int coluna = 0;
+  int linha = 1;
+
+  for (int i = 0; i < JOGADAS_MAX; i++) {
+    // Calcula o índice da jogada, começando pela mais recente
+    int jogadaIndex = (indiceAtual + i) % JOGADAS_MAX;
+    if (jogadaIndex == 0) jogadaIndex = JOGADAS_MAX;
+
+    // Lê a posição da jogada da EEPROM
+    int posicaoJogada = EEPROM.read(jogadaIndex);
+
+    // Exibe no LCD com espaço entre os números
+    lcd.setCursor(coluna, linha);
+    lcd.print(posicaoJogada);
+    lcd.print(" "); // Espaço para separar os números
+
+    // Avança para a próxima posição no LCD
+    coluna += 3; // Cada número ocupa 2 colunas, mais 1 para o espaço
+    if (coluna >= 16) { // Muda de linha se ultrapassar as colunas
+      coluna = 0;
+      linha++;
+    }
+
+    // Pausa breve ao exibir para melhor visibilidade
+    if (linha > 1) {
+      delay(2000); // Aguarda 2 segundos
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Ultimas Jogadas:");
+      coluna = 0;
+      linha = 1;
+    }
   }
 }
 
@@ -135,20 +202,6 @@ void loop() {
 
   // Obrigatorio escrever codigo depois da linha 134 que é quando sabemos onde a bola caiu
 
-  const int eepromSize = 50;  // 50 valores guardados na eeprom
-
-  byte valor = EEPROM.read(posicao_ini_bola);  // lê e guarda em valor o numero obtido
-
-  
-
-
-
-
-
-
-
-
-
 
 
   // quando a roleta para a bola fica no mesmo sitio
@@ -169,6 +222,7 @@ posicao_ini_bola = posicao_ini_bola - 1;  //devido a uma condição no for para 
   int cor;
   def_cor = posicao_ini_bola;
   posicao_ini_bola = posicao_ini_bola - 1;
+  
 
   if (def_cor == 0 || def_cor == 13) {
     cor = 0;
@@ -180,5 +234,12 @@ posicao_ini_bola = posicao_ini_bola - 1;  //devido a uma condição no for para 
     cor = 2;
     efeitoInativo2(cor, posicao_ini_bola);  // azul
   }
-}
 
+
+  salvarJogadaEEPROM(posicao_ini_bola);
+  mostrarJogadasLCD();
+
+
+
+
+}
