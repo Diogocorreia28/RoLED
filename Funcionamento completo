@@ -1,1 +1,184 @@
+#include <FastLED.h>
+#include <LiquidCrystal_I2C.h>
+#include <EEPROM.h>
+
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+#define LED_PIN 7
+#define NUM_LEDS 24
+#define BRIGHTNESS 12
+#define LED_TYPE WS2811
+#define COLOR_ORDER GRB
+
+CRGB leds[NUM_LEDS];
+
+void efeitoInativo1(int posicao_bola) {
+
+  for (int t = 0; t < 700; t++) {  // duração do efeito (700 iterações é aproximadamente 7 segundos)
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // calcula uma cor com base no tempo e na posição
+      uint8_t hue = (i * 10 + t * 5) % 255;  // cores em gradiente girando ao longo do tempo
+      leds[i] = CHSV(hue, 255, 200);         // o hue define as cores a girarem,saturação máxima, brilho moderado
+    }
+
+
+    leds[posicao_bola] = CRGB::White;
+
+
+    FastLED.show();
+    delay(10);  // atenção, ao mudar este valor alterar as iterações pois iterações* valor deste delay corresponde ao tempo do efeito
+  }
+}
+
+void efeitoInativo2(int cor, int posicao_bola) {  //Trata-se de quando a bola para no valor correspondente que tem uma cor, o neo pixel pisca todo nessa cor, para melhor perseção do utilizador
+  CRGB corEscolhida;
+
+  switch (cor) {
+    case 0:
+      corEscolhida = CRGB::Green;
+      break;
+    case 1:
+      corEscolhida = CRGB::Red;
+      break;
+    case 2:
+      corEscolhida = CRGB::Blue;
+      break;
+    default:
+      corEscolhida = CRGB::Black;  // Cor padrão (apagado) se "cor" for inválido
+      break;
+  }
+  for (int t = 0; t < 10; t++) {
+    // Liga todos os LEDs com a cor escolhida
+    for (int i = 0; i < NUM_LEDS; i++) {
+      leds[i] = corEscolhida;
+    }
+
+    leds[posicao_bola] = CRGB::White;
+
+    FastLED.show();
+    delay(300);  // Tempo que os LEDs ficam acesos
+
+    // Apaga todos os LEDs
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+
+    leds[posicao_bola] = CRGB::White;
+
+    FastLED.show();
+    delay(300);  // Tempo que os LEDs ficam apagados
+  }
+}
+
+void setup() {
+  delay(1000);  // tempo que demora a a iniciar o novo codigo
+
+  // inicializa o display
+  lcd.init();
+  lcd.backlight();
+  lcd.print("Reading EEPROM...");
+  delay(2000);
+  lcd.clear();
+
+  // inicializa o neopixel
+  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(BRIGHTNESS);
+  randomSeed(analogRead(A0));  // plantar a semente do random
+}
+
+void loop() {
+
+  int posicao_ini_bola = random(0, NUM_LEDS);  // posição inicial da bola
+  int controlo_vel = 5;                        // controlo da velocidade,caso queira mais
+
+  // for para controlar a bola a rolar
+  for (int i = 0; i < NUM_LEDS * 4; i++) {  //o valor númerico controla as voltas que queremos
+    // apaga todos os LEDs
+    fill_solid(leds, NUM_LEDS, CRGB::Red);  // cor base da roleta (vermelha)
+
+    // define as cores da roleta
+    for (int j = 0; j < NUM_LEDS; j++) {
+      if (j % 2 == 0) {
+        leds[j] = CRGB::Blue;  // azul para LEDs pares
+      } else {
+        leds[j] = CRGB::Red;  // vermelho para LEDs ímpares
+      }
+    }
+
+    // define as posições fixas
+    leds[0] = CRGB::Green;
+    leds[12] = CRGB::Green;
+
+    // define a bola como branca na posição atual
+    leds[posicao_ini_bola] = CRGB::White;
+
+    // atualiza os LEDs
+    FastLED.show();
+
+    // avança a bola para a próxima posição
+    posicao_ini_bola = (posicao_ini_bola + 1) % NUM_LEDS;
+
+
+
+    // aumenta a pausa entre os movimentos para simular desaceleração
+    delay(controlo_vel);
+    //controlando aqui também a velocidade da bola
+    if (i >= (NUM_LEDS * 4 - 10)) {  // verifica se estamos nos últimos 10 LEDs
+      controlo_vel += 20;            // aumenta o atraso significativamente
+    } else {
+      controlo_vel = constrain(controlo_vel + 2, 1, 100);  // incremento padrão
+    }
+
+
+
+
+  }  //acabando aqui quando o for termina
+
+  // Obrigatorio escrever codigo depois da linha 134 que é quando sabemos onde a bola caiu
+
+  const int eepromSize = 50;  // 50 valores guardados na eeprom
+
+  byte valor = EEPROM.read(posicao_ini_bola);  // lê e guarda em valor o numero obtido
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  // quando a roleta para a bola fica no mesmo sitio
+  delay(500);  // pausa de 10 segundos antes de voltar a rodar 5 segundos para ver a posição da bola e outros 5 para efeitos
+               //logo roleta inativa
+
+
+  /* //para o efeito inativo 1
+ 
+posicao_ini_bola = posicao_ini_bola - 1;  //devido a uma condição no for para controlar efeitoInativo1
+
+
+  efeitoInativo1(posicao_ini_bola);
+*/
+
+  //Para o efeito inativo 2
+  int def_cor;
+  int cor;
+  def_cor = posicao_ini_bola;
+  posicao_ini_bola = posicao_ini_bola - 1;
+
+  if (def_cor == 0 || def_cor == 13) {
+    cor = 0;
+    efeitoInativo2(cor, posicao_ini_bola);  // verde
+  } else if (def_cor % 2 == 0) {
+    cor = 1;
+    efeitoInativo2(cor, posicao_ini_bola);  // vermelho
+  } else {
+    cor = 2;
+    efeitoInativo2(cor, posicao_ini_bola);  // azul
+  }
+}
 
