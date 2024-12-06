@@ -205,12 +205,11 @@ void mostrarProbabilidade_cor() {
 }
 
 void mostrarProbabilidade_verde() {
-  int verde = 2, total = 24;
-  float resultado_verde;
+  int verde = 2, Total = 24;
+  float resultado;
+  resultado = (float)verde / Total;
 
-  resultado_verde = (float)verde / total;
-
-  String mensagem = "De sair verde";
+  String mensagem = "De sair um valor verde";
 
   int tamanhoMensagem = mensagem.length();
   int larguraDisplay = 16;  // Largura do display LCD
@@ -219,10 +218,11 @@ void mostrarProbabilidade_verde() {
   for (int posicao = 0; posicao < tamanhoMensagem - larguraDisplay + 1; posicao++) {
     lcd.setCursor(0, 0);
     lcd.print(mensagem.substring(posicao, posicao + larguraDisplay));
-    delay(600);                     //controlo da velocidade
-    lcd.setCursor(0, 1);            // Linha 2, coluna 0
-    lcd.print(resultado_verde, 6);  // Exibe o valor com 4 casas decimais
+    delay(600);               //controlo da velocidade
+    lcd.setCursor(0, 1);      // Linha 2, coluna 0
+    lcd.print(resultado, 4);  // Exibe o valor com 4 casas decimais
   }
+
 }
 
 void mostrarProbabilidade_par_impar() {
@@ -286,7 +286,7 @@ void loop() {
   delay(700);
   lcd.clear();
 
-  mostrarProbabilidade_cor();  //falta o verde
+  mostrarProbabilidade_cor();  
   delay(700);
   lcd.clear();
 
@@ -298,6 +298,7 @@ void loop() {
   delay(700);
   lcd.clear();
 
+  
 
 
   mostrarIniciando();
