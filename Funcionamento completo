@@ -144,213 +144,283 @@ void mostrarProbabilidades_um_numero() {
 
   resultado = (float)valor / total;
 
+  String mensagem = "De sair o resultado escolhido";
 
-  lcd.setCursor(0, 0);  // Linha 1, coluna 0
-  lcd.print("Prob de um num...:");
-  lcd.setCursor(0, 1);      // Linha 2, coluna 0
-  lcd.print(resultado, 4);  // Exibe o valor com 4 casas decimais
-  delay(4000);
+  int tamanhoMensagem = mensagem.length();
+  int larguraDisplay = 16;  // Largura do display LCD
+
+
+  for (int posicao = 0; posicao < tamanhoMensagem - larguraDisplay + 1; posicao++) {
+    lcd.setCursor(0, 0);
+    lcd.print(mensagem.substring(posicao, posicao + larguraDisplay));
+    delay(600);               //controlo da velocidade
+    lcd.setCursor(0, 1);      // Linha 2, coluna 0
+    lcd.print(resultado, 2);  // Exibe o valor com 4 casas decimais
+  }
 }
 
-void mostrarRelembrando(){
+void mostrarRelembrando() {
   lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Relembrando as");
-  lcd.setCursor(0, 1);
-  lcd.print("suas probabilidades");
-  delay(3000);
 
+  String mensagem = "Relembrando as suas probabilidades: ";
+
+  int tamanhoMensagem = mensagem.length();
+  int larguraDisplay = 16;  // Largura do display LCD
+
+  // movimento para o lado
+  for (int posicao = 0; posicao < tamanhoMensagem - larguraDisplay + 1; posicao++) {
+    lcd.setCursor(0, 0);
+    lcd.print(mensagem.substring(posicao, posicao + larguraDisplay));
+    delay(450);  //controlo da velocidade
+  }
 }
 
 void mostrarIniciando() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Aguardar valor");
+}
+
+void mostrarProbabilidade_cor() {
+  int cores_comuns = 11, total = 24;
+  float resultado_cores = 0;
+
+
+  resultado_cores = (float)cores_comuns / total;
+
+
+  String mensagem1 = "De sair vermelho ou preto";
+
+  int tamanhoMensagem1 = mensagem1.length();
+  int larguraDisplay = 16;  // Largura do display LCD
+
+
+  for (int posicao = 0; posicao < tamanhoMensagem1 - larguraDisplay + 1; posicao++) {
+    lcd.setCursor(0, 0);
+    lcd.print(mensagem1.substring(posicao, posicao + larguraDisplay));
+    delay(600);                     //controlo da velocidade
+    lcd.setCursor(0, 1);            // Linha 2, coluna 0
+    lcd.print(resultado_cores, 2);  // Exibe o valor com 2 casas decimais
+  }
+}
+
+void mostrarProbabilidade_verde() {
+  int verde = 2, total = 24;
+  float resultado_verde;
+
+  resultado_verde = (float)verde / total;
+
+  String mensagem = "De sair verde";
+
+  int tamanhoMensagem = mensagem.length();
+  int larguraDisplay = 16;  // Largura do display LCD
+
+
+  for (int posicao = 0; posicao < tamanhoMensagem - larguraDisplay + 1; posicao++) {
+    lcd.setCursor(0, 0);
+    lcd.print(mensagem.substring(posicao, posicao + larguraDisplay));
+    delay(600);                     //controlo da velocidade
+    lcd.setCursor(0, 1);            // Linha 2, coluna 0
+    lcd.print(resultado_verde, 6);  // Exibe o valor com 4 casas decimais
+  }
+}
+
+void mostrarProbabilidade_par_impar() {
+  int Num_Par_imp = 11, Total = 24;
+  float resultado;
+  resultado = (float)Num_Par_imp / Total;
+
+  String mensagem = "De sair par ou impar";
+
+  int tamanhoMensagem = mensagem.length();
+  int larguraDisplay = 16;  // Largura do display LCD
+
+
+  for (int posicao = 0; posicao < tamanhoMensagem - larguraDisplay + 1; posicao++) {
+    lcd.setCursor(0, 0);
+    lcd.print(mensagem.substring(posicao, posicao + larguraDisplay));
+    delay(600);               //controlo da velocidade
+    lcd.setCursor(0, 1);      // Linha 2, coluna 0
+    lcd.print(resultado, 4);  // Exibe o valor com 4 casas decimais
+  }
 
 }
 
-
-  void Prob_cor(float* comuns, float* raros) {
-    int cores_comuns = 11, verde = 2, total = 24;
-
-    // Calculando probabilidades
-    *comuns = (float)cores_comuns / total;
-    *raros = (float)verde / total;
-  }
-
-  float Prob_Par_Impar() {
-    //como o número de impares é igual ao numero de pares
-    int Num_Par_imp = 11, Total = 24;
-    int resultado;
-
-    resultado = (float)Num_Par_imp / Total;
-
-    return resultado;
-  }
-
-  struct Probabilidades {
-    int hot[5];
-    int cold[5];
-  };
-  Probabilidades calcularProbabilidades(const int* aparicoes, int size);
+struct Probabilidades {
+  int hot[5];
+  int cold[5];
+};
+Probabilidades calcularProbabilidades(const int* aparicoes, int size);
 
 
+void setup() {
+  delay(1000);  // tempo que demora a a iniciar o novo codigo
 
-  void setup() {
-    delay(1000);  // tempo que demora a a iniciar o novo codigo
+  // inicializa o display
+  lcd.init();
+  lcd.backlight();
+  lcd.print("A iniciar...");
+  delay(2000);
+  lcd.clear();
 
-    // inicializa o display
-    lcd.init();
-    lcd.backlight();
-    lcd.print("A iniciar...");
-    delay(2000);
-    lcd.clear();
+  //Para ver onde a bola calhou nas ultimas jogadas quando inicia
 
-    //Para ver onde a bola calhou nas ultimas jogadas quando inicia
+  mostrarJogadasLCD();
+  delay(5000);
+  lcd.clear();
 
-    mostrarJogadasLCD();
-    delay(5000);
-    lcd.clear();
+  // inicializa o neopixel
+  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(BRIGHTNESS);
+  randomSeed(analogRead(A0));  // plantar a semente do random
+}
 
-    // inicializa o neopixel
-    FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-    FastLED.setBrightness(BRIGHTNESS);
-    randomSeed(analogRead(A0));  // plantar a semente do random
-  }
+void loop() {
 
-  void loop() {
+  // antes da bola começar a girar devemos mostrar as respectivas probabilidades
+  mostrarRelembrando();
+  delay(700);
+  lcd.clear();
 
-    // antes da bola começar a girar devemos mostrar as respectivas probabilidades
-    mostrarRelembrando();
-    lcd.clear();
+  mostrarProbabilidades_um_numero();
+  delay(700);
+  lcd.clear();
 
-    mostrarProbabilidades_um_numero();
-    lcd.clear();
+  mostrarProbabilidade_cor();  //falta o verde
+  delay(700);
+  lcd.clear();
+
+  mostrarProbabilidade_verde();
+  delay(700);
+  lcd.clear();
+
+  mostrarProbabilidade_par_impar();
+  delay(700);
+  lcd.clear();
 
 
 
-    mostrarIniciando();
-    int posicao_ini_bola = random(0, 24);  // posição inicial da bola
-    int controlo_vel = 5;                  // controlo da velocidade,caso queira mais
+  mostrarIniciando();
+  int posicao_ini_bola = random(0, 24);  // posição inicial da bola
+  int controlo_vel = 5;                  // controlo da velocidade,caso queira mais
 
-    // for para controlar a bola a rolar
-    for (int i = 0; i < NUM_LEDS * 4; i++) {  //o valor númerico controla as voltas que queremos
-      // apaga todos os LEDs
-      fill_solid(leds, NUM_LEDS, CRGB::Red);  // cor base da roleta (vermelha)
+  // for para controlar a bola a rolar
+  for (int i = 0; i < NUM_LEDS * 4; i++) {  //o valor númerico controla as voltas que queremos
+    // apaga todos os LEDs
+    fill_solid(leds, NUM_LEDS, CRGB::Red);  // cor base da roleta (vermelha)
 
-      // define as cores da roleta
-      for (int j = 0; j < NUM_LEDS; j++) {
-        if (j % 2 == 0) {
-          leds[j] = CRGB::Blue;  // azul para LEDs pares
-        } else {
-          leds[j] = CRGB::Red;  // vermelho para LEDs ímpares
-        }
-      }
-
-      // define as posições fixas
-      leds[0] = CRGB::Green;
-      leds[12] = CRGB::Green;
-
-      // define a bola como branca na posição atual
-      leds[posicao_ini_bola] = CRGB::White;
-
-      // atualiza os LEDs
-      FastLED.show();
-
-      // avança a bola para a próxima posição
-      posicao_ini_bola = (posicao_ini_bola + 1) % NUM_LEDS;
-
-
-
-      // aumenta a pausa entre os movimentos para simular desaceleração
-      delay(controlo_vel);
-      //controlando aqui também a velocidade da bola
-      if (i >= (NUM_LEDS * 4 - 10)) {  // verifica se estamos nos últimos 10 LEDs
-        controlo_vel += 20;            // aumenta o atraso significativamente
+    // define as cores da roleta
+    for (int j = 0; j < NUM_LEDS; j++) {
+      if (j % 2 == 0) {
+        leds[j] = CRGB::Blue;  // azul para LEDs pares
       } else {
-        controlo_vel = constrain(controlo_vel + 2, 1, 100);  // incremento padrão
+        leds[j] = CRGB::Red;  // vermelho para LEDs ímpares
       }
+    }
+
+    // define as posições fixas
+    leds[0] = CRGB::Green;
+    leds[12] = CRGB::Green;
+
+    // define a bola como branca na posição atual
+    leds[posicao_ini_bola] = CRGB::White;
+
+    // atualiza os LEDs
+    FastLED.show();
+
+    // avança a bola para a próxima posição
+    posicao_ini_bola = (posicao_ini_bola + 1) % NUM_LEDS;
 
 
 
-
-    }  //acabando aqui quando o for termina
-
-    // Obrigatorio escrever codigo depois da linha 134 que é quando sabemos onde a bola caiu
-
-
-
-    // quando a roleta para a bola fica no mesmo sitio
-    delay(500);  // pausa de 10 segundos antes de voltar a rodar 5 segundos para ver a posição da bola e outros 5 para efeitos
-                 //logo roleta inativa
-
-
- 
-
-    //Para o efeito inativo 2
-    int def_cor;
-    int cor;
-    posicao_ini_bola = (posicao_ini_bola - 1 + NUM_LEDS) % NUM_LEDS;
-    def_cor = posicao_ini_bola+1;
-    
-    
-   
-    if (def_cor == 0 || def_cor == 13) {
-      cor = 0;
-      efeitoInativo2(cor, posicao_ini_bola);  // verde
-    } else if (def_cor % 2 == 0) {
-      cor = 1;
-      efeitoInativo2(cor, posicao_ini_bola);  // vermelho
+    // aumenta a pausa entre os movimentos para simular desaceleração
+    delay(controlo_vel);
+    //controlando aqui também a velocidade da bola
+    if (i >= (NUM_LEDS * 4 - 10)) {  // verifica se estamos nos últimos 10 LEDs
+      controlo_vel += 20;            // aumenta o atraso significativamente
     } else {
-      cor = 2;
-      efeitoInativo2(cor, posicao_ini_bola);  // azul
+      controlo_vel = constrain(controlo_vel + 2, 1, 100);  // incremento padrão
     }
 
 
-    lcd.clear(); //para apagar o iniciando
 
-      //Para ver onde a bola calhou nas ultimas jogadas
-      salvarJogadaEEPROM(posicao_ini_bola);
-    mostrarJogadasLCD();
-    efeitoInativo1(posicao_ini_bola);
-    delay(3000);
-    lcd.clear();
+
+  }  //acabando aqui quando o for termina
+
+  // Obrigatorio escrever codigo depois da linha 134 que é quando sabemos onde a bola caiu
+
+
+  // quando a roleta para a bola fica no mesmo sitio
+  delay(500);  // pausa de 10 segundos antes de voltar a rodar 5 segundos para ver a posição da bola e outros 5 para efeitos
+               //logo roleta inativa
+
+
+
+
+  //Para o efeito inativo 2
+  int def_cor;
+  int cor;
+  posicao_ini_bola = (posicao_ini_bola - 1 + NUM_LEDS) % NUM_LEDS;
+  def_cor = posicao_ini_bola + 1;
+
+
+
+  if (def_cor == 0 || def_cor == 13) {
+    cor = 0;
+    efeitoInativo2(cor, posicao_ini_bola);  // verde
+  } else if (def_cor % 2 == 0) {
+    cor = 1;
+    efeitoInativo2(cor, posicao_ini_bola);  // vermelho
+  } else {
+    cor = 2;
+    efeitoInativo2(cor, posicao_ini_bola);  // azul
   }
 
 
+  lcd.clear();  //para apagar o iniciando
 
-  Probabilidades calcularProbabilidades(const int* aparicoes, int size) {  //tivemos de colocar aqui a função devido ao compilador não reconhecer o "Probabilidades"
-    int frequencias[24] = { 0 };
+  //Para ver onde a bola calhou nas ultimas jogadas
+  salvarJogadaEEPROM(posicao_ini_bola);
+  mostrarJogadasLCD();
+  efeitoInativo1(posicao_ini_bola);
+  delay(3000);
+  lcd.clear();
+}
 
-    for (int i = 0; i < size; i++) {
-      if (aparicoes[i] >= 0 && aparicoes[i] < 24) {  // Corrigido limite superior
-        frequencias[aparicoes[i]]++;
-      }
+
+
+Probabilidades calcularProbabilidades(const int* aparicoes, int size) {  //tivemos de colocar aqui a função devido ao compilador não reconhecer o "Probabilidades"
+  int frequencias[24] = { 0 };
+
+  for (int i = 0; i < size; i++) {
+    if (aparicoes[i] >= 0 && aparicoes[i] < 24) {  // Corrigido limite superior
+      frequencias[aparicoes[i]]++;
     }
-
-    Probabilidades resultados;
-
-    for (int k = 0; k < 5; k++) {
-      int maxFreq = -1, maxNum = -1;
-      for (int i = 0; i < 24; i++) {
-        if (frequencias[i] > maxFreq) {
-          maxFreq = frequencias[i];
-          maxNum = i;
-        }
-      }
-      resultados.hot[k] = maxNum;
-      frequencias[maxNum] = -1;  // Marcar como usado
-
-      int minFreq = size + 1, minNum = -1;
-      for (int i = 0; i < 24; i++) {
-        if (frequencias[i] >= 0 && frequencias[i] < minFreq) {
-          minFreq = frequencias[i];
-          minNum = i;
-        }
-      }
-      resultados.cold[k] = minNum;
-      frequencias[minNum] = -1;  // Marcar como usado
-    }
-
-    return resultados;
   }
+
+  Probabilidades resultados;
+
+  for (int k = 0; k < 5; k++) {
+    int maxFreq = -1, maxNum = -1;
+    for (int i = 0; i < 24; i++) {
+      if (frequencias[i] > maxFreq) {
+        maxFreq = frequencias[i];
+        maxNum = i;
+      }
+    }
+    resultados.hot[k] = maxNum;
+    frequencias[maxNum] = -1;  // Marcar como usado
+
+    int minFreq = size + 1, minNum = -1;
+    for (int i = 0; i < 24; i++) {
+      if (frequencias[i] >= 0 && frequencias[i] < minFreq) {
+        minFreq = frequencias[i];
+        minNum = i;
+      }
+    }
+    resultados.cold[k] = minNum;
+    frequencias[minNum] = -1;  // Marcar como usado
+  }
+
+  return resultados;
+}
