@@ -1,9 +1,12 @@
 #include <FastLED.h>
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
+#include <SoftwareSerial.h>
 
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+SoftwareSerial bluetooth(11, 10); //rx tx
 
 const int JOGADAS_MAX = 5;                // Número máximo de jogadas
 const int EEPROM_SIZE = JOGADAS_MAX + 1;  // 1 byte para o índice + jogadas
@@ -18,7 +21,7 @@ CRGB leds[NUM_LEDS];
 
 void efeitoInativo1(int posicao_bola) {
 
-  for (int t = 0; t < 700; t++) {  // duração do efeito (700 iterações é aproximadamente 7 segundos)
+  for (int t = 0; t < 1000; t++) {  // duração do efeito (700 iterações é aproximadamente 7 segundos)
     for (int i = 0; i < NUM_LEDS; i++) {
       // calcula uma cor com base no tempo e na posição
       uint8_t hue = (i * 10 + t * 5) % 255;  // cores em gradiente girando ao longo do tempo
@@ -72,6 +75,7 @@ void efeitoInativo2(int cor, int posicao_bola) {  //Trata-se de quando a bola pa
   }
 }
 
+
 void salvarJogadaEEPROM(int posicao) {
   // Lê o índice atual da EEPROM (posição 0)
   int indiceAtual = EEPROM.read(0);
@@ -80,9 +84,15 @@ void salvarJogadaEEPROM(int posicao) {
   if (indiceAtual < 1 || indiceAtual > JOGADAS_MAX) {
     indiceAtual = 1;
   }
-
+if(posicao == 12){
+  EEPROM.write(indiceAtual, 00);
+}else if(posicao>12){
   // Salva a posição da jogada no índice atual
+  EEPROM.write(indiceAtual, posicao-1);
+}else if(posicao<12){
   EEPROM.write(indiceAtual, posicao);
+}
+
 
   // Incrementa o índice e volta para 1 se ultrapassar o máximo
   indiceAtual = (indiceAtual % JOGADAS_MAX) + 1;
@@ -222,7 +232,6 @@ void mostrarProbabilidade_verde() {
     lcd.setCursor(0, 1);      // Linha 2, coluna 0
     lcd.print(resultado, 4);  // Exibe o valor com 4 casas decimais
   }
-
 }
 
 void mostrarProbabilidade_par_impar() {
@@ -243,18 +252,18 @@ void mostrarProbabilidade_par_impar() {
     lcd.setCursor(0, 1);      // Linha 2, coluna 0
     lcd.print(resultado, 4);  // Exibe o valor com 4 casas decimais
   }
-
 }
 
-struct Probabilidades {
-  int hot[5];
-  int cold[5];
-};
-Probabilidades calcularProbabilidades(const int* aparicoes, int size);
+
+
+
+
 
 
 void setup() {
   delay(1000);  // tempo que demora a a iniciar o novo codigo
+
+  Serial.begin(9600);
 
   // inicializa o display
   lcd.init();
@@ -262,6 +271,8 @@ void setup() {
   lcd.print("A iniciar...");
   delay(2000);
   lcd.clear();
+
+  bluetooth.begin(9600);
 
   //Para ver onde a bola calhou nas ultimas jogadas quando inicia
 
@@ -276,30 +287,103 @@ void setup() {
 }
 
 void loop() {
+  int valorRecebido=0;
+ 
 
+ 
+    
   // antes da bola começar a girar devemos mostrar as respectivas probabilidades
+
+if (bluetooth.available()) {
+      
+        valorRecebido = bluetooth.read(); // Lê o valor recebido
+        Serial.print("Valor recebido: ");
+        Serial.println(valorRecebido); // Exibe o valor na consola
+    
+
+}  if(valorRecebido==0 ){
   mostrarRelembrando();
   delay(700);
   lcd.clear();
+}  if (bluetooth.available()) {
+      
+        valorRecebido = bluetooth.read(); // Lê o valor recebido
+        Serial.print("Valor recebido: ");
+        Serial.println(valorRecebido); // Exibe o valor na consola
+        
+  }if(valorRecebido==0){
 
   mostrarProbabilidades_um_numero();
   delay(700);
   lcd.clear();
 
-  mostrarProbabilidade_cor();  
+ 
+ }if (bluetooth.available()) {
+      
+        valorRecebido = bluetooth.read(); // Lê o valor recebido
+        Serial.print("Valor recebido: ");
+        Serial.println(valorRecebido); // Exibe o valor na consola
+       
+  } 
+ if(valorRecebido==0){
+
+  mostrarProbabilidade_cor();
   delay(700);
   lcd.clear();
 
+
+}   if (bluetooth.available()) {
+      
+        valorRecebido = bluetooth.read(); // Lê o valor recebido
+        Serial.print("Valor recebido: ");
+        Serial.println(valorRecebido); // Exibe o valor na consola
+  }if(valorRecebido == 0){
   mostrarProbabilidade_verde();
   delay(700);
   lcd.clear();
+ 
 
+    }if (bluetooth.available()) {
+      
+        valorRecebido = bluetooth.read(); // Lê o valor recebido
+        Serial.print("Valor recebido: ");
+        Serial.println(valorRecebido); // Exibe o valor na consola
+      }if(valorRecebido == 0){
   mostrarProbabilidade_par_impar();
   delay(700);
   lcd.clear();
 
-  
+    }   if (bluetooth.available()) {
+      
+        valorRecebido = bluetooth.read(); // Lê o valor recebido
+        Serial.print("Valor recebido: ");
+        Serial.println(valorRecebido); // Exibe o valor na consola
+      }if(valorRecebido==0){
+  mostrarMaisFrequentes();
+  delay(700);
+  lcd.clear();
 
+}  if (bluetooth.available()) {
+      
+        valorRecebido = bluetooth.read(); // Lê o valor recebido
+        Serial.print("Valor recebido: ");
+        Serial.println(valorRecebido); // Exibe o valor na consola
+  }if(valorRecebido==0){
+
+  mostrarMenosFrequentes();
+  delay(700);
+  lcd.clear();
+}
+if (bluetooth.available()) {
+
+  
+      
+        valorRecebido = bluetooth.read(); // Lê o valor recebido
+        Serial.print("Valor recebido: ");
+        Serial.println(valorRecebido); // Exibe o valor na consola
+
+}
+while(valorRecebido == 1){
 
   mostrarIniciando();
   int posicao_ini_bola = random(0, 24);  // posição inicial da bola
@@ -354,6 +438,7 @@ void loop() {
   // quando a roleta para a bola fica no mesmo sitio
   delay(500);  // pausa de 10 segundos antes de voltar a rodar 5 segundos para ver a posição da bola e outros 5 para efeitos
                //logo roleta inativa
+  valorRecebido=0;
 
 
 
@@ -366,7 +451,7 @@ void loop() {
 
 
 
-  if (def_cor == 0 || def_cor == 13) {
+  if (def_cor == 0 || def_cor == 12) {
     cor = 0;
     efeitoInativo2(cor, posicao_ini_bola);  // verde
   } else if (def_cor % 2 == 0) {
@@ -384,44 +469,125 @@ void loop() {
   salvarJogadaEEPROM(posicao_ini_bola);
   mostrarJogadasLCD();
   efeitoInativo1(posicao_ini_bola);
-  delay(3000);
+  
   lcd.clear();
+  valorRecebido=0;
+
+}
+  
+}
+//codigo acaba aqui
+
+
+
+
+void mostrarMaisFrequentes() {
+    int contagem[24] = {0}; // Contador para números de 0 a 23
+    int numeros[25];
+
+    // Leitura dos 25 números da EEPROM
+    for (int i = 0; i < 25; i++) {
+        numeros[i] = EEPROM.read(i);
+        contagem[numeros[i]]++;
+    }
+
+    // Encontrar os 5 números mais frequentes
+    int maisFrequentes[5] = {-1, -1, -1, -1, -1};
+    int frequencias[5] = {0, 0, 0, 0, 0}; // Inicializa com zero
+
+    for (int i = 0; i < 24; i++) {
+        if (contagem[i] > 0) { // Apenas números que apareceram pelo menos uma vez
+            for (int j = 0; j < 5; j++) {
+                if (contagem[i] > frequencias[j]) {
+                    // Desloca os números para a direita
+                    for (int k = 4; k > j; k--) {
+                        maisFrequentes[k] = maisFrequentes[k - 1];
+                        frequencias[k] = frequencias[k - 1];
+                    }
+                    maisFrequentes[j] = i;
+                    frequencias[j] = contagem[i];
+                    break;
+                }
+            }
+        }
+    }
+
+    // Exibir os resultados no LCD
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Mais Frequentes:");
+    lcd.setCursor(0, 1);
+    for (int i = 0; i < 5; i++) {
+        if (maisFrequentes[i] != -1) {
+            lcd.print(maisFrequentes[i]);
+            lcd.print(" ");
+        }
+    }
+
+    // Exibir no Serial
+    Serial.println("Mais Frequentes:");
+    for (int i = 0; i < 5; i++) {
+        if (maisFrequentes[i] != -1) {
+            Serial.print(maisFrequentes[i]);
+            Serial.print(" ");
+        }
+    }
+    Serial.println();
+    delay(5000);
 }
 
+void mostrarMenosFrequentes() {
+    int contagem[24] = {0}; // Contador para números de 0 a 23
+    int numeros[25];
 
-
-Probabilidades calcularProbabilidades(const int* aparicoes, int size) {  //tivemos de colocar aqui a função devido ao compilador não reconhecer o "Probabilidades"
-  int frequencias[24] = { 0 };
-
-  for (int i = 0; i < size; i++) {
-    if (aparicoes[i] >= 0 && aparicoes[i] < 24) {  // Corrigido limite superior
-      frequencias[aparicoes[i]]++;
+    // Leitura dos 25 números da EEPROM
+    for (int i = 0; i < 25; i++) {
+        numeros[i] = EEPROM.read(i);
+        contagem[numeros[i]]++;
     }
-  }
 
-  Probabilidades resultados;
+    // Encontrar os 5 números menos frequentes
+    int menosFrequentes[5] = {-1, -1, -1, -1, -1};
+    int frequencias[5] = {25, 25, 25, 25, 25}; // Inicializa com um valor alto
 
-  for (int k = 0; k < 5; k++) {
-    int maxFreq = -1, maxNum = -1;
     for (int i = 0; i < 24; i++) {
-      if (frequencias[i] > maxFreq) {
-        maxFreq = frequencias[i];
-        maxNum = i;
-      }
+        if (contagem[i] > 0) { // Apenas números que apareceram pelo menos uma vez
+            for (int j = 0; j < 5; j++) {
+                if (contagem[i] < frequencias[j]) {
+                    // Desloca os números para a direita
+                    for (int k = 4; k > j; k--) {
+                        menosFrequentes[k] = menosFrequentes[k - 1];
+                        frequencias[k] = frequencias[k - 1];
+                    }
+                    menosFrequentes[j] = i;
+                    frequencias[j] = contagem[i];
+                    break;
+                }
+            }
+        }
     }
-    resultados.hot[k] = maxNum;
-    frequencias[maxNum] = -1;  // Marcar como usado
 
-    int minFreq = size + 1, minNum = -1;
-    for (int i = 0; i < 24; i++) {
-      if (frequencias[i] >= 0 && frequencias[i] < minFreq) {
-        minFreq = frequencias[i];
-        minNum = i;
-      }
+    // Exibir os resultados no LCD
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Menos Frequentes:");
+    lcd.setCursor(0, 1);
+    for (int i = 0; i < 5; i++) {
+        if (menosFrequentes[i] != -1) {
+            lcd.print(menosFrequentes[i]);
+            lcd.print(" ");
+        }
     }
-    resultados.cold[k] = minNum;
-    frequencias[minNum] = -1;  // Marcar como usado
-  }
 
-  return resultados;
+    // Exibir no Serial
+    Serial.println("Menos Frequentes:");
+    for (int i = 0; i < 5; i++) {
+        if (menosFrequentes[i] != -1) {
+            Serial.print(menosFrequentes[i]);
+            Serial.print(" ");
+        }
+    }
+    Serial.println();
+    delay(5000);
 }
+
