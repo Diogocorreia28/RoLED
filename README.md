@@ -1,7 +1,7 @@
 # RoLED
 Author name:
 Diogo Lopes Correia
-João António Dinis Lucas
+
 
 Version number:0.0.1
 
